@@ -1,3 +1,5 @@
+import csv
+
 import scrapy
 
 from .utills import TECHNOLOGIES
@@ -48,3 +50,13 @@ class DjinniSpider(scrapy.Spider):
             "ul.pagination.pagination_with_numbers li.page-item.active + li.page-item a.page-link::attr(href)").get()
         if next_page:
             yield response.follow(next_page, callback=self.parse)
+
+    def closed(self, reason):
+        filename = "scraped_data.csv"
+        with open(filename, "w", newline="") as csvfile:
+            fieldnames = ["Job Title", "Company Name", "English Level", "Experience", "Technologies", "Viewers",
+                          "Applicants"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            writer.writerows(self.results)
